@@ -22,20 +22,25 @@ function update()
 		success: function(results)
 		{
 			clearMarkers();
+			var now = new Date();
 			for (var i = 0; i < results.length; i++) 
 			{ 
 				var person = results[i];
 				var pos = new google.maps.LatLng(person.get("lat"), person.get("long"));
 
+				console.log("updating", person);
 				var imageString = "";
 				if (person.get("photo"))
 				{
-					//imageString = "<img class='thumb' src='" + person.get("photo").url() + "'><br>";
-					//imageString = "<div class='thumb' style='background-image:url(" + person.get("photo").url() + ");'></div>";
-					//imageString = "<div class='square'><div class='squareInner' style='background-image:url(" + person.get("photo").url() + ");'></div></div>";
-					imageString = "<div class='square'><img class='squareInner' src='" + person.get("photo").url() + "'></div>";
+					imageString = "<img class='thumb' src='" + person.get("photo").url() + "'><br>";
 				}
 				var contentString = '<div class="person">' + imageString + person.get("name") + '</div>';
+
+				var bg = "#ddd";
+				if ((now - person.updatedAt) < 2 * 60 * 1000)
+				{
+					bg = "#afa";
+				}
 
 				var infoBubble = new InfoBubble({
 					map: map,
@@ -43,7 +48,7 @@ function update()
 					position: pos,
 					shadowStyle: 0,
 					padding: 0,
-					backgroundColor: '#AFA',
+					backgroundColor: bg,
 					borderRadius: 4,
 					arrowSize: 10,
 					borderWidth: 3,
@@ -75,11 +80,8 @@ function ping()
 
 function initLocation()
 {
-
-
 	if (navigator.geolocation)
 	{
-		var browserSupportFlag = true;
 		navigator.geolocation.getCurrentPosition(function(position)
 		{
 			var initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -153,7 +155,6 @@ function initialize()
 	}
 
 
-	console.log(myname);
 	myname.bind("change", function()
 	{
 		if (this.value != myUser.get("name"))
@@ -165,31 +166,42 @@ function initialize()
 	});
 
 	var fileUploadControl = $("#profilePhotoFileUpload");
-	//var fileUploadControl = $("#profilePhotoFileUpload")[0];
 	fileUploadControl.bind("change", function()
 	{
 		if (fileUploadControl[0].files.length > 0)
 		{
+
 			var file = fileUploadControl[0].files[0];
 			var name = "photo.jpg";
 
 			var parseFile = new Parse.File(name, file);
 
+			fileUploadControl.hide();
+			$("#uploading").show();
 			parseFile.save().then(function()
 			{
-				// The file has been saved to Parse.
+				$("#uploading").hide();
+				fileUploadControl.show();
+				update();
 			}, function(error)
 			{
-				// The file either could not be read, or could not be saved to Parse.
+				$("#uploading").hide();
+				fileUploadControl.show();
+				update();
+
+				console.log("error saving photo", error);
 			});
 
 			myUser.set("photo", parseFile);
 			myUser.save();
-			update();
+
 		}
 	});
 
-
+	$(".closebutton").click(function()
+	{
+		$("#info").hide();
+	});
 
 	update();
 
