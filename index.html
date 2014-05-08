@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Where's Everybody?</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+		html
+		{
+			height: 100%;
+		}
+
+		body
+		{
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		#map-canvas
+		{
+			height: 100%;
+		}
+		#info
+		{
+			position:absolute;
+			margin:auto;
+			z-index:1000;
+			top:0px;
+		}
+	</style>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqDbqXs_2hyfJXHH82-40WlbJZ-J8BtF4&sensor=true"></script>
+</head>
+<body>
+	<div id="map-canvas" ></div>
+	<script type="text/javascript" src="app.js"></script>
+</body>
+</html>
