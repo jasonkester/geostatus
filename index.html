@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
 	<title>Where's Everybody?</title>
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" href="bootstrap.css" />
 	<style type="text/css">
 		html
 		{
@@ -25,16 +26,72 @@
 		{
 			position:absolute;
 			margin:auto;
+			padding:20px;
 			z-index:1000;
-			top:0px;
+			top:5px;
+			left:50%;
+			width:400px;
+			margin-left:-200px;
+			background:#fff;
+			border:solid 1px #ccc;
+		}
+		.bubble
+		{
+			text-align:center;
+		}
+		.thumb
+		{
+			background-position: 50% 50%;
+			background-size: contain;
+			background-repeat: no-repeat;
+			width: 50px;
+			height: 50px;
+			overflow:hidden
+		}
+		.square
+		{
+			width: 50px;
+			height: 50px;
+			overflow:hidden;
+			text-align: center;
+		}
+		.squareInner
+		{
+			vertical-align: middle;
+			text-align: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+		.helper 
+		{
+			display: inline-block;
+			height: 100%;
+			vertical-align: middle;
 		}
 	</style>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.18.min.js"></script>
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqDbqXs_2hyfJXHH82-40WlbJZ-J8BtF4&sensor=true"></script>
+	<script type="text/javascript" src="infobubble.js"></script>
 </head>
 <body>
 	<div id="map-canvas" ></div>
+	<div id="info">
+		<h1>
+			Where is everybody?
+		</h1>
+		<p>
+			This is a map of who's online and where in the world they are.
+		</p>
+		<p>
+			Give us a name and photo to add yourself:
+		</p>
+		<input id="myname" type="text" placeholder="What's your name?"/>
+		<input type="file" id="profilePhotoFileUpload" placeholder="Upload a picture?">
+	</div>
+
+
+
 	<script type="text/javascript" src="app.js"></script>
 </body>
 </html>

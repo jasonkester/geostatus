@@ -4,6 +4,7 @@ var Person = Parse.Object.extend("Person");
 var map;
 var myUser;
 var markers = [];
+var placeholderName = "Somebody";
 
 function clearMarkers()
 {
@@ -26,46 +27,38 @@ function update()
 				var person = results[i];
 				var pos = new google.maps.LatLng(person.get("lat"), person.get("long"));
 
-				var contentString = '<div class="person">' + person.get("name") + '</div>';
-				if (person.id == myUser.id && !person.get("name"))
-				//if (person.id == myUser.id)
+				var imageString = "";
+				if (person.get("photo"))
 				{
-					contentString = '<div class="person"><input id="myname" type="text" placeholder="What\'s your name?" value="' + person.get("name") + '" /></div>';
+					//imageString = "<img class='thumb' src='" + person.get("photo").url() + "'><br>";
+					//imageString = "<div class='thumb' style='background-image:url(" + person.get("photo").url() + ");'></div>";
+					//imageString = "<div class='square'><div class='squareInner' style='background-image:url(" + person.get("photo").url() + ");'></div></div>";
+					imageString = "<div class='square'><img class='squareInner' src='" + person.get("photo").url() + "'></div>";
 				}
+				var contentString = '<div class="person">' + imageString + person.get("name") + '</div>';
 
-				var infowindow = new google.maps.InfoWindow({
-					position: pos,
+				var infoBubble = new InfoBubble({
 					map: map,
+					content: contentString,
+					position: pos,
+					shadowStyle: 0,
+					padding: 0,
+					backgroundColor: '#AFA',
+					borderRadius: 4,
+					arrowSize: 10,
+					borderWidth: 3,
+					borderColor: '#fff',
+					disableAnimation: true,
 					disableAutoPan: true,
-					content: contentString
+					hideCloseButton: true,
+					arrowPosition: 50,
+					backgroundClassName: 'bubble',
+					arrowStyle: 0
 				});
-				infowindow.open(map);
+				infoBubble.open();
+				markers.push(infoBubble);
 
-				markers.push(infowindow);
 
-				setTimeout(function()
-				{
-					$("#myname").bind("change,blur", function()
-					{
-						if (this.value != myUser.get("name"))
-						{
-							myUser.set("name", this.value);
-							myUser.save();
-						}
-						$("#myname").parent().text(this.value);
-					});
-
-					$("#myname").bind("blur", function()
-					{
-						var val = this.value;
-						setTimeout(function()
-						{
-							$("#myname").parent().text(val);
-						}, 100);
-					});
-
-					$("#myname").get(0).select();
-				}, 500);
 			}
 		},
 		error: function(error)
@@ -73,6 +66,11 @@ function update()
 			console.log("update error", error);
 		}
 	});
+}
+
+function ping()
+{
+	myUser.save();
 }
 
 function initLocation()
@@ -91,7 +89,7 @@ function initLocation()
 			{
 				console.log("new user");
 				myUser = new Person();
-				myUser.set("name", "");
+				myUser.set("name", placeholderName);
 			}
 			myUser.set("lat", position.coords.latitude);
 			myUser.set("long", position.coords.longitude);
@@ -118,6 +116,8 @@ function initLocation()
 
 function initialize()
 {
+	var myname = $("#myname");
+
 	var mapOptions = {
 		zoom: 3
 	};
@@ -133,6 +133,10 @@ function initialize()
 			{
 				console.log("retrieved user", myUser);
 				myUser = object;
+				if (object.get("name") != placeholderName)
+				{
+					myname.val(object.get("name"));
+				}
 				initLocation();
 			},
 			error: function(object, error)
@@ -148,6 +152,48 @@ function initialize()
 
 	}
 
+
+	console.log(myname);
+	myname.bind("change", function()
+	{
+		if (this.value != myUser.get("name"))
+		{
+			myUser.set("name", this.value);
+			myUser.save();
+			update();
+		}
+	});
+
+	var fileUploadControl = $("#profilePhotoFileUpload");
+	//var fileUploadControl = $("#profilePhotoFileUpload")[0];
+	fileUploadControl.bind("change", function()
+	{
+		if (fileUploadControl[0].files.length > 0)
+		{
+			var file = fileUploadControl[0].files[0];
+			var name = "photo.jpg";
+
+			var parseFile = new Parse.File(name, file);
+
+			parseFile.save().then(function()
+			{
+				// The file has been saved to Parse.
+			}, function(error)
+			{
+				// The file either could not be read, or could not be saved to Parse.
+			});
+
+			myUser.set("photo", parseFile);
+			myUser.save();
+			update();
+		}
+	});
+
+
+
 	update();
+
+	setInterval(update, 10 * 1000);
+	setInterval(ping, 60 * 1000);
 }
 google.maps.event.addDomListener(window, 'load', initialize);
